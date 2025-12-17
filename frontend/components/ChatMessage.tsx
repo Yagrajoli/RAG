@@ -1,4 +1,4 @@
-import { Message, Citation } from '@/types/';
+import { Message, Citation } from '@/types/app';
 import { cn } from '@/lib/utils';
 import { User, Bot, File, Globe, ExternalLink, Loader2 } from 'lucide-react';
 import {

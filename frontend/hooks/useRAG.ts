@@ -29,7 +29,7 @@ export function useRAG() {
         form.append("url", source.url ?? "");
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/documents/index`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/documents/index`, {
         method: "POST",
         body: form
       });
@@ -134,7 +134,7 @@ export function useRAG() {
           s.type === "file" ? "pdf_collection" : "web_collection"
         );
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -1,4 +1,4 @@
-import { SourceStatus } from '@/types';
+import { SourceStatus } from '@/types/app';
 import { cn } from '@/lib/utils';
 import { CheckCircle2, Loader2, XCircle, Clock } from 'lucide-react';
 
