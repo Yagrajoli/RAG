@@ -37,14 +37,16 @@ export const chatController = async (req, res) => {
       const vectorStore = await QdrantVectorStore.fromExistingCollection(
         embeddings,
         {
-          url: process.env.QDRANT_DB_URL,
+          // url: process.env.QDRANT_DB_URL,
+          host:process.env.CLUSTER_ENDPOINT,
+          apiKey: process.env.QDRANT_API_KEY,
           collectionName: col,
         }
       );
 
       const retriever = vectorStore.asRetriever({
         k: 5,
-        searchType: "hybrid",
+        searchType: "similarity",
       });
 
       const docs = await retriever.invoke(userQuery);
@@ -85,7 +87,7 @@ ${contextString}
     // GPT Answer
 
     const response = await client.chat.completions.create({
-      model: "gpt-5-mini",
+      model: "gpt-4o-mini",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: userQuery },

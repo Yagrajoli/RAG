@@ -47,7 +47,9 @@ export const indexingController = async (req, res) => {
      * ------------------------------*/
     if (pdfDocs) {
       await QdrantVectorStore.fromDocuments(pdfDocs, embeddings, {
-        url: process.env.QDRANT_DB_URL,
+        host:process.env.CLUSTER_ENDPOINT,
+        // url: process.env.QDRANT_DB_URL,
+        apiKey: process.env.QDRANT_API_KEY,
         collectionName: "pdf_collection",
       });
     }
@@ -57,7 +59,9 @@ export const indexingController = async (req, res) => {
      * ------------------------------*/
     if (webDocs) {
       await QdrantVectorStore.fromDocuments(webDocs, embeddings, {
-        url: process.env.QDRANT_DB_URL,
+        host:process.env.CLUSTER_ENDPOINT,
+        // url: process.env.QDRANT_DB_URL,
+        apiKey: process.env.QDRANT_API_KEY,
         collectionName: "web_collection",
       });
     }
@@ -66,7 +70,7 @@ export const indexingController = async (req, res) => {
       message: "Indexing completed",
       pdfIndexed: !!pdfDocs,
       webIndexed: !!webDocs,
-      pdfCollection: pdfDocs ? "my_new_collection" : null,
+      pdfCollection: pdfDocs ? "pdf_collection" : null,
       webCollection: webDocs ? "web_collection" : null,
     });
 
