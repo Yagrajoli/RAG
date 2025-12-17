@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const page = () => {
-  const { sources, messages, isLoading, uploadFiles, addUrl, deleteSource, sendMessage } = useRAG();
+  const { sources, messages, isLoading, uploadFiles, addUrl, deleteSource, sendMessage, clearMessages } = useRAG();
   const [mobileView, setMobileView] = useState<'sources' | 'chat'>('chat');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -76,6 +76,7 @@ const page = () => {
             <ChatPanel
               messages={messages}
               onSendMessage={sendMessage}
+              onClearMessages={clearMessages}
               isLoading={isLoading}
               hasSources={hasSources}
               sidebarOpen={sidebarOpen}
@@ -96,6 +97,7 @@ const page = () => {
             <ChatPanel
               messages={messages}
               onSendMessage={sendMessage}
+              onClearMessages={clearMessages}
               isLoading={isLoading}
               hasSources={hasSources}
               sidebarOpen={sidebarOpen}

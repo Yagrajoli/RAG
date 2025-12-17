@@ -1,13 +1,118 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Source, Message } from '@/types/app';
 import { toast } from "sonner";
+
+const STORAGE_KEYS = {
+  SOURCES: 'rag-sources',
+  MESSAGES: 'rag-messages',
+};
+
+// Helper to safely parse JSON from localStorage
+const getFromStorage = <T>(key: string, defaultValue: T): T => {
+  if (typeof window === 'undefined') return defaultValue;
+  try {
+    const item = localStorage.getItem(key);
+    if (!item) return defaultValue;
+    return JSON.parse(item);
+  } catch {
+    return defaultValue;
+  }
+};
+
+// Helper to safely save to localStorage
+const saveToStorage = <T>(key: string, value: T): void => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.error('Error saving to localStorage:', error);
+  }
+};
+
+// Types for serialized data (dates as strings)
+interface SerializedSource {
+  id: string;
+  type: "file" | "url";
+  name?: string;
+  url?: string;
+  status: 'pending' | 'processing' | 'indexed' | 'failed';
+  error?: string;
+  createdAt: string;
+}
+
+interface SerializedMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  citations?: any[];
+  timestamp: string;
+  isThinking?: boolean;
+}
+
+// Serialize sources for storage (exclude File objects as they can't be serialized)
+const serializeSources = (sources: Source[]): SerializedSource[] => {
+  return sources.map(({ file, ...rest }) => ({
+    ...rest,
+    // Convert Date to string for storage
+    createdAt: rest.createdAt instanceof Date ? rest.createdAt.toISOString() : String(rest.createdAt),
+  }));
+};
+
+// Deserialize sources from storage (restore Date objects)
+const deserializeSources = (sources: SerializedSource[]): Source[] => {
+  return sources.map(source => ({
+    ...source,
+    createdAt: new Date(source.createdAt),
+  }));
+};
+
+// Serialize messages for storage
+const serializeMessages = (messages: Message[]): SerializedMessage[] => {
+  return messages.map(msg => ({
+    ...msg,
+    timestamp: msg.timestamp instanceof Date ? msg.timestamp.toISOString() : String(msg.timestamp),
+  }));
+};
+
+// Deserialize messages from storage (restore Date objects)
+const deserializeMessages = (messages: SerializedMessage[]): Message[] => {
+  return messages.map(msg => ({
+    ...msg,
+    timestamp: new Date(msg.timestamp),
+  }));
+};
 
 export function useRAG() {
   const [sources, setSources] = useState<Source[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+  // Load data from localStorage on mount
+  useEffect(() => {
+    const storedSources = getFromStorage<SerializedSource[]>(STORAGE_KEYS.SOURCES, []);
+    const storedMessages = getFromStorage<SerializedMessage[]>(STORAGE_KEYS.MESSAGES, []);
+    
+    setSources(deserializeSources(storedSources));
+    setMessages(deserializeMessages(storedMessages));
+    setIsInitialized(true);
+  }, []);
+
+  // Save sources to localStorage whenever they change
+  useEffect(() => {
+    if (isInitialized) {
+      saveToStorage(STORAGE_KEYS.SOURCES, serializeSources(sources));
+    }
+  }, [sources, isInitialized]);
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    if (isInitialized) {
+      saveToStorage(STORAGE_KEYS.MESSAGES, serializeMessages(messages));
+    }
+  }, [messages, isInitialized]);
 
   
   // 1. INDEXING 
@@ -162,6 +267,24 @@ export function useRAG() {
     }
   }, [sources]);
 
+  // 6. CLEAR FUNCTIONS
+  
+  const clearMessages = useCallback(() => {
+    setMessages([]);
+    toast("Chat history cleared");
+  }, []);
+
+  const clearSources = useCallback(() => {
+    setSources([]);
+    toast("All sources cleared");
+  }, []);
+
+  const clearAll = useCallback(() => {
+    setMessages([]);
+    setSources([]);
+    toast("All data cleared");
+  }, []);
+
   return {
     sources,
     messages,
@@ -170,5 +293,8 @@ export function useRAG() {
     addUrl,
     deleteSource,
     sendMessage,
+    clearMessages,
+    clearSources,
+    clearAll,
   };
 }

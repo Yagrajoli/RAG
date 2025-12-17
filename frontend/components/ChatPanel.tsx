@@ -2,12 +2,14 @@ import { useRef, useEffect } from "react";
 import { Message } from "@/types/app";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
-import { Bot, Moon, Sparkles } from "lucide-react";
+import { Bot, Moon, Sparkles, Trash2 } from "lucide-react";
 import { ModeToggle } from "@/lib/ModeToggle";
+import { Button } from "./ui/button";
 
 interface ChatPanelProps {
   messages: Message[];
   onSendMessage: (message: string) => Promise<void>;
+  onClearMessages?: () => void;
   isLoading?: boolean;
   hasSources?: boolean;
   sidebarOpen: boolean;
@@ -16,6 +18,7 @@ interface ChatPanelProps {
 export function ChatPanel({
   messages,
   onSendMessage,
+  onClearMessages,
   sidebarOpen,
   isLoading = false,
   hasSources = false,
@@ -62,7 +65,18 @@ export function ChatPanel({
           </div>
         )}
 
-        <div>
+        <div className="flex items-center gap-2">
+          {messages.length > 0 && onClearMessages && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClearMessages}
+              className="cursor-pointer text-muted-foreground hover:text-destructive"
+              title="Clear chat history"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          )}
           <ModeToggle />
         </div>
       </div>
