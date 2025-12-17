@@ -37,8 +37,8 @@ export const chatController = async (req, res) => {
       const vectorStore = await QdrantVectorStore.fromExistingCollection(
         embeddings,
         {
-          // url: process.env.QDRANT_DB_URL,
-          host:process.env.CLUSTER_ENDPOINT,
+          url: process.env.QDRANT_DB_URL,
+          // host:process.env.CLUSTER_ENDPOINT,
           apiKey: process.env.QDRANT_API_KEY,
           collectionName: col,
         }
