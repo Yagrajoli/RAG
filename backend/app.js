@@ -16,7 +16,7 @@ app.use('/public', express.static('public'));
 
 // cors configuration
 app.use(cors({
-  origin: process.env.FRONTEND_URL ,
+  origin: ['https://rag-frontend-iota.vercel.app'] ,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
